@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27018:27017" # Redirige le port 27017 (MongoDB) vers 27018 sur la machine hôte
+    volumes:
+      - mongodb_data:/data/db # Stockage persistant pour MongoDB
+    restart: always # Redémarre automatiquement si le conteneur s'arrête
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root # Utilisateur admin
+      MONGO_INITDB_ROOT_PASSWORD: example # Mot de passe admin
+
+  stargo-backend:
+    build:
+      context: . # Le répertoire actuel contient le code NestJS
+      dockerfile: Dockerfile # Utilise un fichier Dockerfile pour l'image NestJS
+    container_name: stargo-backend
+    ports:
+      - "3000:3000" # Redirige le port 3000 (NestJS) sur la machine hôte
+    depends_on:
+      - mongodb # Attend que MongoDB soit prêt avant de démarrer
+    environment:
+      DATABASE_URL: mongodb://root:example@mongodb:27017/fitness?authSource=admin
+      # Remarquez que `mongodb` est utilisé comme hôte, car le backend communique via Docker
+    restart: always
+
+volumes:
+  mongodb_data: # Volume pour MongoDB
