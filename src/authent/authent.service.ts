@@ -12,7 +12,7 @@ export class AuthentService {
   async validateUser(username: string, password: string): Promise<any> {
     const user = await this.userService.findByUsername(username);
     if (user && user.password === password) {
-      const { password, ...result } = user.toObject();
+      const { password, ...result } = { ...user }; // Utilise l'opérateur spread
       return result;
     }
     throw new UnauthorizedException('Invalid credentials');

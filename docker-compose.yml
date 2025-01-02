@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mongodb:
     image: mongo:latest
-    container_name: mongodb
+    container_name: stargo-mongodb # Nouveau nom unique pour éviter les conflits
     ports:
       - "27018:27017" # Redirige le port 27017 (MongoDB) vers 27018 sur la machine hôte
     volumes:
@@ -17,14 +17,14 @@ services:
     build:
       context: . # Le répertoire actuel contient le code NestJS
       dockerfile: Dockerfile # Utilise un fichier Dockerfile pour l'image NestJS
-    container_name: stargo-backend
+    container_name: stargo-backend # Nom unique pour le conteneur backend
     ports:
       - "3000:3000" # Redirige le port 3000 (NestJS) sur la machine hôte
     depends_on:
       - mongodb # Attend que MongoDB soit prêt avant de démarrer
     environment:
-      DATABASE_URL: mongodb://root:example@mongodb:27017/fitness?authSource=admin
-      # Remarquez que `mongodb` est utilisé comme hôte, car le backend communique via Docker
+      DATABASE_URL: mongodb://root:example@stargo-mongodb:27017/fitness?authSource=admin
+      # Remarquez que `stargo-mongodb` est utilisé comme hôte, car le backend communique via Docker
     restart: always
 
 volumes:

@@ -1,18 +1,31 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { User } from './user.schema';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './user.entity'; // Import de l'entité User
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>, // Injecte le repository TypeORM
+  ) {}
 
+  // Créer un utilisateur
   async createUser(username: string, password: string, email?: string): Promise<User> {
-    const newUser = new this.userModel({ username, password, email });
-    return newUser.save();
+    // Crée un nouvel utilisateur avec le repository
+    const newUser = this.userRepository.create({ username, password, email });
+    return this.userRepository.save(newUser); // Sauvegarde l'utilisateur dans la base
   }
 
+  // Rechercher un utilisateur par son nom d'utilisateur
   async findByUsername(username: string): Promise<User | null> {
-    return this.userModel.findOne({ username }).exec();
+    // Recherche un utilisateur avec une condition where
+    return this.userRepository.findOne({ where: { username } });
+  }
+
+  // Lister tous les utilisateurs
+  async findAll(): Promise<User[]> {
+    // Retourne tous les utilisateurs
+    return this.userRepository.find();
   }
 }
